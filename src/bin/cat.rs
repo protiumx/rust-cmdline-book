@@ -34,7 +34,13 @@ struct Args {
 fn open(filename: &str) -> runix::Result<Box<dyn BufRead>> {
     match filename {
         "-" => Ok(Box::new(BufReader::new(io::stdin()))),
-        _ => Ok(Box::new(BufReader::new(File::open(filename)?))),
+        _ => {
+            let file = File::open(filename);
+            match file {
+                Ok(file) => Ok(Box::new(BufReader::new(file))),
+                Err(e) => Err(format!("{filename}: {e}"))?,
+            }
+        }
     }
 }
 
@@ -60,11 +66,11 @@ fn run(conf: Args) -> runix::Result<()> {
                             n += 1;
                         }
                     } else {
-                        println!("{}", line);
+                        println!("{line}");
                     }
                 }
             }
-            Err(e) => eprintln!("{} err", e),
+            Err(e) => eprintln!("{e}"),
         }
     }
 
