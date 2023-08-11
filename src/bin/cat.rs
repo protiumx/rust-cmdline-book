@@ -1,4 +1,5 @@
 use clap::Parser;
+use runix::Result;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 
@@ -31,50 +32,38 @@ struct Args {
     number_nonblank_lines: bool,
 }
 
-fn open(filename: &str) -> runix::Result<Box<dyn BufRead>> {
-    match filename {
-        "-" => Ok(Box::new(BufReader::new(io::stdin()))),
-        _ => {
-            let file = File::open(filename);
-            match file {
-                Ok(file) => Ok(Box::new(BufReader::new(file))),
-                Err(e) => Err(format!("{filename}: {e}"))?,
-            }
+fn run(args: Args) -> Result<()> {
+    for content in args.files.iter().map(|f| runix::open_file(f)) {
+        if let Err(e) = content {
+            eprintln!("{e}");
+            continue;
         }
-    }
-}
 
-fn get_args() -> runix::Result<Args> {
-    Ok(Args::parse())
-}
-
-fn run(conf: Args) -> runix::Result<()> {
-    for filename in conf.files {
-        match open(&filename) {
-            Ok(content) => {
-                let mut n = 0;
-                for line in content.lines() {
-                    let line = line?;
-                    if conf.number_lines {
-                        println!("{:6}\t{}", n + 1, line);
-                        n += 1;
-                    } else if conf.number_nonblank_lines {
-                        if line.is_empty() {
-                            println!();
-                        } else {
-                            println!("{:6}\t{}", n + 1, line);
-                            n += 1;
-                        }
-                    } else {
-                        println!("{line}");
-                    }
+        let content = content.unwrap();
+        let mut n = 0;
+        for line in content.lines() {
+            let line = line?;
+            if args.number_lines {
+                println!("{:6}\t{}", n + 1, line);
+                n += 1;
+            } else if args.number_nonblank_lines {
+                if line.is_empty() {
+                    println!();
+                } else {
+                    println!("{:6}\t{}", n + 1, line);
+                    n += 1;
                 }
+            } else {
+                println!("{line}");
             }
-            Err(e) => eprintln!("{e}"),
         }
     }
 
     Ok(())
+}
+
+fn get_args() -> Result<Args> {
+    Ok(Args::try_parse()?)
 }
 
 fn main() {
@@ -82,6 +71,4 @@ fn main() {
         eprintln!("{}", e);
         std::process::exit(1);
     }
-
-    std::process::exit(0);
 }
