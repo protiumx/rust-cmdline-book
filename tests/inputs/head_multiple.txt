@@ -1,0 +1,7 @@
+==> tests/inputs/head_input.txt <==
+ä, ö, and ü
+
+
+==> tests/inputs/head_input.txt <==
+ä, ö, and ü
+
