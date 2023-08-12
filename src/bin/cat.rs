@@ -1,7 +1,5 @@
 use clap::Parser;
-use runix::Result;
-use std::fs::File;
-use std::io::{self, BufRead, BufReader};
+use runix::{open_file, Result};
 
 #[derive(Parser, Debug)]
 #[clap(
@@ -33,29 +31,36 @@ struct Args {
 }
 
 fn run(args: Args) -> Result<()> {
-    for content in args.files.iter().map(|f| runix::open_file(f)) {
+    for f in args.files {
+        let content = open_file(&f);
         if let Err(e) = content {
             eprintln!("{e}");
             continue;
         }
 
-        let content = content.unwrap();
+        let mut content = content.unwrap();
         let mut n = 0;
-        for line in content.lines() {
-            let line = line?;
+        let mut line = String::new();
+        loop {
+            let bytes = content.read_line(&mut line)?;
+            if bytes == 0 {
+                break;
+            }
+
             if args.number_lines {
-                println!("{:6}\t{}", n + 1, line);
+                print!("{:6}\t{}", n + 1, line);
                 n += 1;
             } else if args.number_nonblank_lines {
-                if line.is_empty() {
+                if line == "\n" || line == "\r\n" {
                     println!();
                 } else {
-                    println!("{:6}\t{}", n + 1, line);
+                    print!("{:6}\t{}", n + 1, line);
                     n += 1;
                 }
             } else {
                 println!("{line}");
             }
+            line.clear();
         }
     }
 

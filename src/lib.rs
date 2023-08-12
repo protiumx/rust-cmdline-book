@@ -12,7 +12,7 @@ pub fn open_file(filename: &str) -> Result<Box<dyn BufRead>> {
             let file = File::open(filename);
             match file {
                 Ok(file) => Ok(Box::new(BufReader::new(file))),
-                Err(e) => Err(format!("{filename}: {e}").into()),
+                Err(e) => Err(e.into()),
             }
         }
     }
