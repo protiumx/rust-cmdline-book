@@ -58,7 +58,7 @@ fn run(args: Args) -> Result<()> {
                     n += 1;
                 }
             } else {
-                println!("{line}");
+                print!("{line}");
             }
             line.clear();
         }
