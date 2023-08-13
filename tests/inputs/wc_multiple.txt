@@ -1,0 +1,3 @@
+   27  168  929 tests/inputs/wc_input.txt
+   27  168  929 tests/inputs/wc_input.txt
+   54  336 1858 total
