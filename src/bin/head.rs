@@ -48,7 +48,7 @@ fn run(args: Args) -> Result<()> {
 
         let mut content = content.unwrap();
         if print_header {
-            println!("==> {f} <==");
+            println!("==> {} <==", if f == "-" { "standard input" } else { f });
         }
 
         if let Some(count) = args.bytes {
