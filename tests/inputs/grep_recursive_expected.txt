@@ -1,0 +1,6 @@
+tests/inputs/grep/a.txt:The echo of a distant time
+tests/inputs/grep/a.txt:Comes willowing across the sand
+tests/inputs/grep/a.txt:But something stirs and something tries
+tests/inputs/grep/b.txt:somefile.lua 16:22 [ERROR] message
+tests/inputs/grep/b.txt:somefile.lua 12:23 [INFO] message
+tests/inputs/grep/b.txt:somefile.lua 13:01 [INFO] message

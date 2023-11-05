@@ -9,6 +9,7 @@ edition = "2021"
 clap = { version = "4.3.19", features = ["derive"] }
 csv = "1.2.2"
 regex = "1.9.3"
+sys-info = "0.9.1"
 walkdir = "2.3.3"
 
 [dev-dependencies]
