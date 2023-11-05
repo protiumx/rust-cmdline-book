@@ -14,7 +14,7 @@ enum Output {
 
 #[derive(Parser, Debug)]
 #[command(
-    name = "head",
+    name = "cut",
     author = "protium",
     version = "0.1.0",
     about = "Cut bytes, charachters, or fields from files. Lists are zero indexed"
