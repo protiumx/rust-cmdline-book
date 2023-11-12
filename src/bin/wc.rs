@@ -87,29 +87,31 @@ fn format_info(flag: bool, value: usize) -> String {
 fn run(args: Args) -> Result<()> {
     let (mut bytes, mut chars, mut lines, mut words) = (0, 0, 0, 0);
     for f in &args.files {
-        let file = open_file(f);
-        if let Err(e) = file {
-            eprintln!("wc: '{f}': {e}");
-            continue;
+        match open_file(f) {
+            Err(e) => eprintln!("wc: '{f}': {e}"),
+            Ok(file) => match count(file) {
+                Err(e) => eprintln!("wc: '{f}': {e}"),
+                Ok(info) => {
+                    let mut out = String::new();
+                    out.push_str(&format_info(args.lines, info.lines));
+                    out.push_str(&format_info(args.words, info.words));
+                    out.push_str(&format_info(args.bytes, info.bytes));
+                    out.push_str(&format_info(args.chars, info.chars));
+
+                    println!(
+                        "{} {}",
+                        out,
+                        if f == "-" { "".to_string() } else { f.clone() }
+                    );
+
+                    bytes += info.bytes;
+                    chars += info.chars;
+                    lines += info.lines;
+                    words += info.words;
+                }
+            },
         }
 
-        let info = count(file.unwrap())?;
-        let mut out = String::new();
-        out.push_str(&format_info(args.lines, info.lines));
-        out.push_str(&format_info(args.words, info.words));
-        out.push_str(&format_info(args.bytes, info.bytes));
-        out.push_str(&format_info(args.chars, info.chars));
-
-        println!(
-            "{} {}",
-            out,
-            if f == "-" { "".to_string() } else { f.clone() }
-        );
-
-        bytes += info.bytes;
-        chars += info.chars;
-        lines += info.lines;
-        words += info.words;
     }
 
     if args.files.len() > 1 {

@@ -175,53 +175,52 @@ fn run(args: Args) -> Result<()> {
     };
 
     for (i, f) in args.files.iter().enumerate() {
-        let content = open_file(f);
-        if let Err(e) = content {
-            eprintln!("cut: cannot open '{f}' for reading: {e}");
-            continue;
-        }
+        match open_file(f) {
+            Err(e) => eprintln!("cut: cannot open '{f}' for reading: {e}"),
 
-        if i > 0 {
-            println!();
-        }
-
-        let mut content = content.unwrap();
-        match output {
-            Output::Bytes => {
-                let mut line = String::new();
-                loop {
-                    let bytes = content.read_line(&mut line)?;
-                    if bytes == 0 {
-                        break;
-                    }
-
-                    println!("{}", extract_bytes(&line, &ranges));
+            Ok(mut content) => {
+                if i > 0 {
+                    println!();
                 }
-            }
-            Output::Chars => {
-                let mut line = String::new();
-                loop {
-                    let bytes = content.read_line(&mut line)?;
-                    if bytes == 0 {
-                        break;
+
+                match output {
+                    Output::Bytes => {
+                        let mut line = String::new();
+                        loop {
+                            let bytes = content.read_line(&mut line)?;
+                            if bytes == 0 {
+                                break;
+                            }
+
+                            println!("{}", extract_bytes(&line, &ranges));
+                        }
                     }
+                    Output::Chars => {
+                        let mut line = String::new();
+                        loop {
+                            let bytes = content.read_line(&mut line)?;
+                            if bytes == 0 {
+                                break;
+                            }
 
-                    println!("{}", extract_chars(&line, &ranges));
-                }
-            }
-            Output::Fields => {
-                let mut reader = ReaderBuilder::new()
-                    .delimiter(args.delim)
-                    .has_headers(false)
-                    .from_reader(content);
+                            println!("{}", extract_chars(&line, &ranges));
+                        }
+                    }
+                    Output::Fields => {
+                        let mut reader = ReaderBuilder::new()
+                            .delimiter(args.delim)
+                            .has_headers(false)
+                            .from_reader(content);
 
-                let mut writer = WriterBuilder::new()
-                    .delimiter(args.delim)
-                    .from_writer(std::io::stdout());
+                        let mut writer = WriterBuilder::new()
+                            .delimiter(args.delim)
+                            .from_writer(std::io::stdout());
 
-                for result in reader.records() {
-                    let record = result?;
-                    writer.write_record(extract_fields(&record, &ranges))?;
+                        for result in reader.records() {
+                            let record = result?;
+                            writer.write_record(extract_fields(&record, &ranges))?;
+                        }
+                    }
                 }
             }
         }
