@@ -438,6 +438,7 @@ dependencies = [
  "assert_cmd",
  "clap",
  "csv",
+ "once_cell",
  "predicates",
  "rand",
  "regex",

@@ -1,0 +1,13 @@
+==> tests/inputs/tail_input.txt <==
+six
+seven
+eight
+nine
+ten
+
+==> tests/inputs/tail_input.txt <==
+six
+seven
+eight
+nine
+ten
